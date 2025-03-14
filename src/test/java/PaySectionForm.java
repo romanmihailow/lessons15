@@ -36,19 +36,19 @@ public class PaySectionForm {
         connectionPhoneNumber.click();
     }
     public void sendPhoneNumber(String phoneNumber) {
-        connectionPhoneNumber.sendKeys("297777777");
+        connectionPhoneNumber.sendKeys(ConfProperties.getProperty("phonenumber"));
     }
     public void clickSumField() {
         connectionSum.click();
     }
     public void sendSum(String sum) {
-        connectionSum.sendKeys("100");
+        connectionSum.sendKeys(ConfProperties.getProperty("sum"));
     }
     public void clickEmailField() {
         connectionEmail.click();
     }
     public void sendEmail(String email) {
-        connectionEmail.sendKeys("rmw@gmail.com");
+        connectionEmail.sendKeys(ConfProperties.getProperty("email"));
     }
     public void clickPayButton() {
         payConnectionButton.click();

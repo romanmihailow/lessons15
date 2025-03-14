@@ -32,62 +32,54 @@ public class PaySectionFormTest {
     public void test() {
         WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(10));
 
+        // Проверяем, есть ли кнопка согласия с cookie
         try {
-            // Проверяем, есть ли кнопка согласия с cookie
             WebElement cookieAgreeButton = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//*[@id=\"cookie-agree\"]")));
-            if (cookieAgreeButton.isDisplayed()) {
-                cookieAgreeButton.click();
-            }
+            cookieAgreeButton.click();
         } catch (Exception e) {
-            System.out.println("Кнопка согласия с cookie не найдена, продолжаем выполнение теста.");
+            System.out.println("Cookie button not found, continuing with the test.");
         }
 
+        // Заполнение формы
         paySectionForm.clickPhoneNumberField();
         paySectionForm.sendPhoneNumber(ConfProperties.getProperty("phonenumber"));
         paySectionForm.clickSumField();
-        paySectionForm.sendSum("100");
+        paySectionForm.sendSum(ConfProperties.getProperty("sum"));
         paySectionForm.clickEmailField();
-        paySectionForm.sendEmail("test@test.com");
+        paySectionForm.sendEmail(ConfProperties.getProperty("email"));
         paySectionForm.clickPayButton();
 
+        // Добавим небольшую задержку перед поиском iframe
+        try {
+            Thread.sleep(2000);  // 2 секунды ожидания
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        // Переключаемся на iframe с использованием id
-        //driver.switchTo().frame("gpay-card-info-iframe.gpay-card-info-iframe-fade-in");
+        // Явное ожидание появления iframe
+        WebElement iframe = wait.until(ExpectedConditions.presenceOfElementLocated(By.tagName("iframe")));
+        driver.switchTo().frame(iframe);
 
+        // Добавляем задержку перед поиском элемента внутри iframe
+        try {
+            Thread.sleep(2000);  // 2 секунды ожидания
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 
-        driver.switchTo().frame(0);
+        // Явное ожидание появления элемента внутри iframe
+        WebElement paySectionTitle = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[contains(text(),'Оплата')]")));
 
-        //driver.switchTo().frame(driver.findElement(By.tagName("gpay-card-info-iframe gpay-card-info-iframe-fade-in")));
-        //driver.switchTo().frame("gpay-card-info-iframe gpay-card-info-iframe-fade-in");
-
-        // Ожидаем загрузки нужного элемента на странице
-        //WebElement titlePageInfoPayCard = wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("/html/body/app-root/div/div/div/app-payment-container/section/div/div/div[2]/span")));
-
-        paySectionForm.getPaySectionTitle();
-
-        String expectedTitle = "Оплата: Услуги связи\n" +
-                "Номер:375297777777";
-        String actualTitle = paySectionForm.getPaySectionTitle();
+        // Проверка заголовка
+        String expectedTitle = "Оплата: Услуги связи Номер:375297777777";
+        String actualTitle = paySectionTitle.getText().replace("\n", " ").trim();
         Assert.assertEquals("Тест провален", expectedTitle, actualTitle);
-
-
     }
 
-
-
-
-
-
-
-
-
-
-
-//    @AfterClass
-//    public static void tearDown() {
-//        if (driver != null) {
-//            driver.quit();
-//        }
-//    }
+    @AfterClass
+    public static void tearDown() {
+        if (driver != null) {
+            driver.quit();
+        }
+    }
 }
-
